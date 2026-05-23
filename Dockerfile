@@ -7,7 +7,10 @@ WORKDIR /app/ui
 
 # Install deps
 COPY ui/package.json ui/pnpm-lock.yaml ./
-RUN pnpm config set minimum-release-age 0 && pnpm install --frozen-lockfile
+# Allow sharp (Next.js image optimization) to run its build script
+RUN echo '{"onlyBuiltDependencies":["sharp"]}' > pnpm-approve-builds.json && \
+    pnpm config set minimum-release-age 0 && \
+    pnpm install --frozen-lockfile
 
 # Build Next.js
 COPY ui/ ./
