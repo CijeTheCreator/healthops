@@ -2,6 +2,11 @@
   "name": "healthops-ui",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -70,4 +75,3 @@
     "typescript": "^5"
   }
 }
-
