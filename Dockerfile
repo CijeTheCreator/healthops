@@ -11,7 +11,7 @@ RUN npm install
 
 # Build Next.js
 COPY ui/ ./
-RUN npm build
+RUN npm run build
 
 
 # ─── Stage 2: Build Backend ────────────────────────────────────────────────────
