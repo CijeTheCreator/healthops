@@ -8,7 +8,7 @@ WORKDIR /app/ui
 # Install deps
 COPY ui/package.json ui/pnpm-lock.yaml ./
 # Allow sharp (Next.js image optimization) to run its build script
-RUN pnpm install
+RUN pnpm config set minimum-release-age 0 && pnpm install
 
 # Build Next.js
 COPY ui/ ./
@@ -23,7 +23,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app/backend
 
 COPY backend/package.json backend/pnpm-lock.yaml ./
-RUN pnpm install
+RUN pnpm config set minimum-release-age 0 && pnpm install
 
 COPY backend/ ./
 
