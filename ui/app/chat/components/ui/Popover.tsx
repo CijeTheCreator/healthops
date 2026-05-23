@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from ".pnpm/@types+react@19.2.15/node_modules/@types/react";
-import * as PopoverPrimitive from ".pnpm/@radix-ui+react-popover@1.1.4_@types+react-dom@19.2.3_@types+react@19.2.15__@types+reac_6f0bbd8d74cde0e4a1f96ba713d73314/node_modules/@radix-ui/react-popover/dist/index.mjs";
+import * as React from "react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn } from "../../../../lib/utils";
 
 const Popover = PopoverPrimitive.Root;

@@ -14,12 +14,9 @@ import {
   Receipt,
   HeartPulse,
   File,
-} from ".pnpm/lucide-react@0.454.0_react@19.2.6/node_modules/lucide-react/dist/lucide-react";
+} from "lucide-react";
 import { FamilyStats, HealthSignal } from "../types";
-import {
-  useEffect,
-  useState,
-} from ".pnpm/@types+react@19.2.15/node_modules/@types/react";
+import { useEffect, useState } from "react";
 import { capitalizeFirstLetter } from "../../lib/utils";
 import { ENDPOINT_URL, POLLING_INTERVAL } from "../../lib/config";
 

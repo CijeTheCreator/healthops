@@ -1,8 +1,6 @@
-import { useEffect } from ".pnpm/@types+react@19.2.15/node_modules/@types/react";
 import { MainPane } from "./MainPane";
 import { RightSettingsPanel } from "./RightSettingsPanel";
 import { usePlaygroundController } from "./usePlaygroundController";
-import { FamilyStats } from "../../../types";
 
 export function Chat() {
   return <AppShellContent />;

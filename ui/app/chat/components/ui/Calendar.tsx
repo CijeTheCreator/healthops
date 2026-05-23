@@ -1,14 +1,10 @@
-import * as React from ".pnpm/@types+react@19.2.15/node_modules/@types/react";
+import * as React from "react";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-} from ".pnpm/lucide-react@0.454.0_react@19.2.6/node_modules/lucide-react/dist/lucide-react";
-import {
-  DayButton,
-  DayPicker,
-  getDefaultClassNames,
-} from ".pnpm/react-day-picker@9.8.0_react@19.2.6/node_modules/react-day-picker/dist/esm";
+} from "lucide-react";
+import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 
 import { Button, buttonVariants } from "./Button";
 import { cn } from "../../../../lib/utils";
