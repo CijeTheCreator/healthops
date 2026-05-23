@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "healthops-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -70,3 +70,4 @@
     "typescript": "^5"
   }
 }
+
