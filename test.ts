@@ -4,10 +4,8 @@ import { SIGNAL_PROMPT } from "./prompts/outputs";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { configDotenv } from "dotenv";
 import { samples } from "./samples";
-import {
-  genAi_processNewMessage,
-  processNewMessage,
-} from "./services/llmServices";
+import { genAI_WeeklyDigest, processNewMessage } from "./services/llmServices";
+import { getLocalIPv4Address } from "./utils";
 configDotenv({ quiet: true });
 
 const SignalOutput = z.object({
@@ -50,14 +48,32 @@ export async function testGemma({}: {}) {
 
 // testGemma({});
 
-async function testChatbot() {
-  const response = await genAi_processNewMessage({
-    newUserMessage:
-      "How many calories have I been burning on average this week?",
-    previousConversation: "",
-    rangeStart: "2025-01-13",
-    rangeEnd: new Date(Date.now()).toISOString().split("T")[0],
-  });
-  console.log(response);
+// async function testChatbot() {
+//   const response = await genAi_processNewMessage({
+//     newUserMessage:
+//       "How many calories have I been burning on average this week?",
+//     previousConversation: "",
+//     rangeStart: "2025-01-13",
+//     rangeEnd: new Date(Date.now()).toISOString().split("T")[0],
+//   });
+//   console.log(response);
+// }
+// testChatbot();
+
+// async function testDigest() {
+//   const response = await genAI_WeeklyDigest({
+//     rangeStart: "2025-01-13",
+//     rangeEnd: new Date(Date.now()).toISOString().split("T")[0],
+//     familyMember: "Chijioke",
+//   });
+//   console.log("Response: ", response);
+// }
+//
+// testDigest();
+//
+async function testGetAddress() {
+  const address = getLocalIPv4Address();
+  console.log(`Server is running on: ${address}`);
 }
-testChatbot();
+
+testGetAddress();

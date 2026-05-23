@@ -52,7 +52,7 @@ export async function saveHealthData({
 
     await db.execute({
       sql: `INSERT OR IGNORE INTO health_data (uuid, username, data) VALUES (?, ?, ?)`,
-      args: [entry.uuid, username, JSON.stringify(entry)],
+      args: [entry.uuid, username.toLowerCase(), JSON.stringify(entry)],
     });
     inserted++;
   }
@@ -63,7 +63,11 @@ export async function saveHealthData({
       contextWindow,
       windowSize,
     });
-    await saveHealthSignal({ entry: signal as any, username });
+    console.log(signal);
+    await saveHealthSignal({
+      entry: signal as any,
+      username: username.toLowerCase(),
+    });
   }
 
   return { inserted, skipped };
@@ -169,7 +173,7 @@ export async function getHealthDataByUsername(
   },
 ) {
   let sql = `SELECT * FROM health_data WHERE username = ?`;
-  const args: InValue[] = [username];
+  const args: InValue[] = [username.toLowerCase()];
 
   if (filters?.metric) {
     sql += ` AND json_extract(data, '$.metric') = ?`;
