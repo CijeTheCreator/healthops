@@ -55,13 +55,14 @@ COPY --from=backend-builder /app/backend ./
 
 # ── Wizard ──
 COPY setup_wizard.py /app/setup_wizard.py
+RUN sed -i 's/\r//' /app/setup_wizard.py
 
 # ── Supervisor config ──
 COPY supervisord.conf /etc/supervisor/conf.d/healthops.conf
 
 # ── Entrypoint ──
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 3000 3005
 
