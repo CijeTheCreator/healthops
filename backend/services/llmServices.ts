@@ -8,7 +8,10 @@ import {
   WEEKLY_DIGEST_PROMPT,
 } from "../prompts/outputs";
 import { getAllHealthData } from "./healthServices";
-import { getAllHealthSignals } from "./healthSignalServices";
+import {
+  getAllHealthSignals,
+  getHealthSignalsByUsername,
+} from "./healthSignalServices";
 import { saveWeeklyDigest } from "./weeklyDigestService";
 
 export async function generate_health_signal({
@@ -157,7 +160,9 @@ export async function genAI_ProcessMessage({
 export async function genAI_WeeklyDigest({
   rangeStart,
   rangeEnd,
+  familyMember,
 }: {
+  familyMember?: string;
   rangeStart?: string;
   rangeEnd?: string;
 }) {
@@ -165,8 +170,10 @@ export async function genAI_WeeklyDigest({
   let thoughts = "";
   let answer = "";
 
+  if (!familyMember) throw new Error("Family Member required");
+
   const processedSignals =
-    (await getAllHealthData({
+    (await getHealthSignalsByUsername(familyMember, {
       createdFrom: rangeStart,
       createdTo: rangeEnd,
     })) || [];
@@ -206,5 +213,52 @@ export async function genAI_WeeklyDigest({
     }
   }
 
-  await saveWeeklyDigest("chijioke", answer);
+  await saveWeeklyDigest(familyMember.toLowerCase(), answer);
+}
+
+async function genAI_generateSignal({
+  currentEntry,
+  contextWindow,
+  windowSize,
+}: {
+  currentEntry: object;
+  contextWindow: object;
+  windowSize?: number;
+}) {
+  try {
+    const client = new GoogleGenAI({});
+    const selectedWindowSize = parseInt(
+      windowSize?.toString() || process.env.DEFAULT_WINDOW_SIZE || "30",
+    );
+
+    const prompt = SIGNAL_PROMPT.replace(
+      "{{WINDOW_SIZE}}",
+      selectedWindowSize.toString(),
+    )
+      .replace("{{CURRENT_ENTRY}}", JSON.stringify(currentEntry))
+      .replace("{{CONTEXT_WINDOW}}", JSON.stringify(contextWindow));
+
+    const stream = await client.interactions.create({
+      model: "gemma-4-26b-a4b-it",
+      input: prompt,
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: SignalOutput,
+      },
+      stream: true,
+    });
+
+    for await (const event of stream) {
+      if (event.type === "step.delta" && event.delta?.text) {
+        process.stdout.write(event.delta.text);
+      }
+    }
+
+    return {
+      signal: "watch",
+      observation: "an observation",
+      timeStamp: new Date(Date.now()),
+    };
+  } catch (e) {}
 }

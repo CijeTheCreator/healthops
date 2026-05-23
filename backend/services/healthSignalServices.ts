@@ -13,12 +13,13 @@ export interface HealthSignalEntry {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function rowToSignal(row: unknown) {
+export function rowToSignal(row: unknown) {
   const r = row as Record<string, unknown>;
   return {
     id: r.id as number,
     created_at: r.created_at as string,
     signal: r.signal as SignalLevel,
+    username: r.username as string,
     observation: r.observation as string,
     timestamp: new Date(r.timestamp as string),
   };
@@ -40,7 +41,7 @@ export async function saveHealthSignal({
     `,
     args: [
       entry.signal,
-      username,
+      username.toLowerCase(),
       entry.observation,
       entry.timestamp.toISOString(),
       JSON.stringify(entry),
@@ -137,7 +138,7 @@ export async function getHealthSignalsByUsername(
   },
 ) {
   let sql = `SELECT * FROM health_signals WHERE username = ?`;
-  const args: InValue[] = [username];
+  const args: InValue[] = [username.toLowerCase()];
 
   if (filters?.signal) {
     sql += ` AND signal = ?`;

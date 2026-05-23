@@ -3,12 +3,16 @@ import cors from "cors";
 import helmet from "helmet";
 
 import { configDotenv } from "dotenv";
-import { deduplicateHealthData } from "./utils";
 import { saveHealthData } from "./services/healthServices";
 import { initDb } from "./db/database";
-import { success } from "zod";
 import { scheduleWeeklyJob } from "./services/cron";
 import { genAI_WeeklyDigest } from "./services/llmServices";
+import {
+  collectStreamingPromptResponse,
+  Playground,
+} from "./services/processUserMessage";
+import { getFamilyStats } from "./services/dashboardService";
+import { getLocalIPv4Address } from "./utils";
 configDotenv({ quiet: true });
 
 const app = express();
@@ -60,6 +64,129 @@ app.post("/api/consume", async (req: Request, res: Response) => {
       status: "unhealthy",
       error: error instanceof Error ? error.message : "Unknown error",
     });
+  }
+});
+
+//Functions related to run
+function hasRunnableInput(playground: Playground | undefined) {
+  return Boolean(playground?.prompt?.trim());
+}
+
+function writeSse(res: express.Response, event: string, data: unknown) {
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+const SSE_FINAL_TEXT_LIMIT = 200_000;
+const SSE_THOUGHTS_TEXT_LIMIT = 80_000;
+
+app.post("/api/run", async (req, res) => {
+  const playground = req.body?.playground as Playground | undefined;
+  if (!playground) {
+    res.status(400).json({ error: "Prompt or attachment is required" });
+    return;
+  }
+  if (!hasRunnableInput(playground)) {
+    res.status(400).json({ error: "Prompt or attachment is required" });
+    return;
+  }
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.flushHeaders?.();
+
+  let clientConnected = true;
+  const heartbeat = setInterval(() => {
+    if (!clientConnected || res.destroyed || res.writableEnded) {
+      clearInterval(heartbeat);
+      return;
+    }
+
+    try {
+      res.write(": heartbeat\n\n");
+    } catch {
+      clientConnected = false;
+      clearInterval(heartbeat);
+    }
+  }, 15_000);
+
+  const markClientDisconnected = () => {
+    clientConnected = false;
+    clearInterval(heartbeat);
+  };
+
+  req.on("aborted", markClientDisconnected);
+  res.on("close", markClientDisconnected);
+
+  const writeIfConnected = (event: string, data: unknown) => {
+    if (!clientConnected || res.destroyed || res.writableEnded) {
+      return false;
+    }
+
+    try {
+      writeSse(res, event, data);
+      return true;
+    } catch {
+      markClientDisconnected();
+      return false;
+    }
+  };
+
+  try {
+    const sentChars = {
+      final: 0,
+      thoughts: 0,
+    };
+    const writeLimitedDelta = (delta: {
+      channel: "thoughts" | "final";
+      text: string;
+    }) => {
+      const limit =
+        delta.channel === "final"
+          ? SSE_FINAL_TEXT_LIMIT
+          : SSE_THOUGHTS_TEXT_LIMIT;
+      const remaining = Math.max(0, limit - sentChars[delta.channel]);
+      if (remaining <= 0) {
+        return;
+      }
+
+      const text = delta.text.slice(0, remaining);
+      sentChars[delta.channel] += text.length;
+      writeIfConnected("delta", { ...delta, text });
+    };
+
+    console.log("Playground: ", playground);
+    const result = await collectStreamingPromptResponse({
+      playground,
+      onStart: (data) => writeIfConnected("start", data),
+      onDelta: writeLimitedDelta,
+      onError: (message) => writeIfConnected("error", { message }),
+    });
+
+    writeIfConnected("done", result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    writeIfConnected("error", { message });
+  } finally {
+    clearInterval(heartbeat);
+    if (clientConnected && !res.destroyed && !res.writableEnded) {
+      res.end();
+    }
+  }
+});
+
+app.get("/api/stats", async (req, res) => {
+  try {
+    const stats = await getFamilyStats();
+    const ipAddress = getLocalIPv4Address();
+    stats["ip"] = ipAddress;
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch family stats" });
   }
 });
 
