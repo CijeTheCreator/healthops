@@ -7,7 +7,7 @@ WORKDIR /app/ui
 
 # Install deps
 COPY ui/package.json ui/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm config set minimum-release-age 0 && pnpm install --frozen-lockfile
 
 # Build Next.js
 COPY ui/ ./
@@ -22,7 +22,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app/backend
 
 COPY backend/package.json backend/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm config set minimum-release-age 0 && pnpm install --frozen-lockfile
 
 COPY backend/ ./
 
