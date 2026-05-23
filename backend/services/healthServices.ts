@@ -2,8 +2,12 @@
 
 import { InValue } from "@libsql/client";
 import db from "../db/database";
-import { generate_health_signal } from "./llmServices";
+import {
+  generateHealthSignal_langchain,
+  generateHealthSignal_ollama,
+} from "./llmServices";
 import { saveHealthSignal } from "./healthSignalServices";
+import { isFullyPrivate } from "../utils";
 
 interface HealthEntry {
   uuid: string;
@@ -58,11 +62,20 @@ export async function saveHealthData({
   }
 
   if (currentUniqueEntry.length > 0) {
-    const signal = await generate_health_signal({
-      currentEntry: currentUniqueEntry,
-      contextWindow,
-      windowSize,
-    });
+    let signal: any;
+    if (isFullyPrivate()) {
+      signal = await generateHealthSignal_ollama({
+        currentEntry: currentUniqueEntry,
+        contextWindow,
+        windowSize,
+      });
+    } else {
+      signal = await generateHealthSignal_langchain({
+        currentEntry: currentUniqueEntry,
+        contextWindow,
+        windowSize,
+      });
+    }
     console.log(signal);
     await saveHealthSignal({
       entry: signal as any,

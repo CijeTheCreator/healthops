@@ -106,28 +106,8 @@ def main():
         console.print()
         animated_spinner(console, "Preparing environment…")
     else:
-        provider = questionary.select(
-            "Which AI provider would you like to use?",
-            choices=[
-                questionary.Choice("  Gemini  (Google AI Studio)", value="gemini"),
-                questionary.Choice(
-                    "  OpenRouter  (multi-model gateway)", value="openrouter"
-                ),
-            ],
-            style=WIZARD_STYLE,
-            qmark="◆",
-        ).ask()
-
-        if provider is None:
-            console.print("\n[dim]Setup cancelled. Exiting.[/]")
-            sys.exit(1)
-
-        console.print()
-        env_key = "GEMINI_API_KEY" if provider == "gemini" else "OPENROUTER_API_KEY"
-        provider_label = "Gemini" if provider == "gemini" else "OpenRouter"
-
         api_key = questionary.password(
-            f"Paste your {provider_label} API key:",
+            "Paste your Gemini API key:",
             style=WIZARD_STYLE,
             qmark="◆",
         ).ask()
@@ -137,10 +117,10 @@ def main():
             sys.exit(1)
 
         console.print()
-        animated_spinner(console, f"Saving {env_key} to environment…")
-        write_env(env_key, api_key.strip())
-        write_env("AI_MODE", provider)
-        console.print(f"  [bold green]✓[/] {env_key} saved.")
+        animated_spinner(console, "Saving GEMINI_API_KEY to environment…")
+        write_env("GEMINI_API_KEY", api_key.strip())
+        write_env("AI_MODE", "gemini")
+        console.print("  [bold green]✓[/] GEMINI_API_KEY saved.")
         console.print()
 
     console.print(Rule(style="green dim"))

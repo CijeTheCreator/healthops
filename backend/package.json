@@ -24,6 +24,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "node-cron": "^4.2.1",
+    "ollama": "^0.6.3",
     "zod": "^4.4.3",
     "zod-to-json-schema": "^3.25.2"
   },

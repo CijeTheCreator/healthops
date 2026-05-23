@@ -6,13 +6,17 @@ import { configDotenv } from "dotenv";
 import { saveHealthData } from "./services/healthServices";
 import { initDb } from "./db/database";
 import { scheduleWeeklyJob } from "./services/cron";
-import { genAI_WeeklyDigest } from "./services/llmServices";
 import {
-  collectStreamingPromptResponse,
+  genAI_WeeklyDigest,
+  ollama_WeeklyDigest,
+} from "./services/llmServices";
+import {
+  collectStreamingPromptResponse_aistudio,
+  collectStreamingPromptResponse_ollama,
   Playground,
 } from "./services/processUserMessage";
 import { getFamilyStats } from "./services/dashboardService";
-import { getLocalIPv4Address } from "./utils";
+import { getLocalIPv4Address, isFullyPrivate } from "./utils";
 configDotenv({ quiet: true });
 
 const app = express();
@@ -160,12 +164,22 @@ app.post("/api/run", async (req, res) => {
     };
 
     console.log("Playground: ", playground);
-    const result = await collectStreamingPromptResponse({
-      playground,
-      onStart: (data) => writeIfConnected("start", data),
-      onDelta: writeLimitedDelta,
-      onError: (message) => writeIfConnected("error", { message }),
-    });
+    let result: any;
+    if (isFullyPrivate()) {
+      result = await collectStreamingPromptResponse_ollama({
+        playground,
+        onStart: (data) => writeIfConnected("start", data),
+        onDelta: writeLimitedDelta,
+        onError: (message) => writeIfConnected("error", { message }),
+      });
+    } else {
+      result = await collectStreamingPromptResponse_aistudio({
+        playground,
+        onStart: (data) => writeIfConnected("start", data),
+        onDelta: writeLimitedDelta,
+        onError: (message) => writeIfConnected("error", { message }),
+      });
+    }
 
     writeIfConnected("done", result);
   } catch (error) {
@@ -196,7 +210,11 @@ async function start() {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const formatted = oneWeekAgo.toISOString().split("T")[0];
-    genAI_WeeklyDigest({ rangeStart: formatted });
+    if (isFullyPrivate()) {
+      ollama_WeeklyDigest({ rangeStart: formatted });
+    } else {
+      genAI_WeeklyDigest({ rangeStart: formatted });
+    }
   });
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }

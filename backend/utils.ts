@@ -1,4 +1,6 @@
 import os from "os";
+import { configDotenv } from "dotenv";
+configDotenv({ quiet: true });
 
 export function deduplicateHealthData(data: any) {
   const seen = new Set();
@@ -20,4 +22,13 @@ export function getLocalIPv4Address() {
     }
   }
   return "127.0.0.1"; // Fallback
+}
+
+export function isFullyPrivate() {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (GEMINI_API_KEY) {
+    return false;
+  } else {
+    return true;
+  }
 }

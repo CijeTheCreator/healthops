@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { getAllHealthData } from "./healthServices";
 import { getAllHealthSignals } from "./healthSignalServices";
 import { CHAT_BOT_PROMPT } from "../prompts/outputs";
+import ollama from "ollama";
 
 const DEFAULT_GATEWAY_TIMEOUT_MS = 120_000;
 
@@ -47,7 +48,7 @@ export type PromptStreamDelta = {
   text: string;
 };
 
-export async function collectStreamingPromptResponse({
+export async function collectStreamingPromptResponse_aistudio({
   playground,
   timeoutMs = DEFAULT_GATEWAY_TIMEOUT_MS,
   onStart,
@@ -136,6 +137,104 @@ export async function collectStreamingPromptResponse({
     capturedError = message;
     onError?.(message);
 
+    return {
+      id: runId,
+      playgroundId: playground.id,
+      sessionId: undefined,
+      status: "failed",
+      thoughtsText: "",
+      finalText: "",
+      error: capturedError,
+      partial: false,
+      startedAt,
+      completedAt: new Date().toISOString(),
+    };
+  }
+}
+
+export async function collectStreamingPromptResponse_ollama({
+  playground,
+  timeoutMs = DEFAULT_GATEWAY_TIMEOUT_MS,
+  onStart,
+  onDelta,
+  onError,
+}: CollectStreamingPromptResponseOptions): Promise<CollectStreamingPromptResponseResult> {
+  const runId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  let capturedError: string | undefined;
+  onStart?.({ runId });
+
+  try {
+    const rawData =
+      (await getAllHealthData({
+        createdFrom: playground.dateStart,
+        createdTo: playground.dateEnd,
+      })) || [];
+    const processedSignals =
+      (await getAllHealthSignals({
+        createdFrom: playground.dateStart,
+        createdTo: playground.dateEnd,
+      })) || [];
+
+    const prompt = CHAT_BOT_PROMPT.replace(
+      "{{NEW_USER_MESSAGE}}",
+      playground.prompt,
+    )
+      .replace("{{PREVIOUS_CONVERSATION}}", "")
+      .replace("{{PROCESSED_CONTEXT}}", JSON.stringify(processedSignals))
+      .replace("{{RAW_CONTEXT}}", JSON.stringify(rawData));
+
+    const stream = await ollama.chat({
+      model: "gemma4",
+      messages: [{ role: "user", content: prompt }],
+      think: true,
+      stream: true,
+      options: {
+        temperature: 1.0,
+        top_p: 0.95,
+        top_k: 64,
+      },
+    });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out")), timeoutMs),
+    );
+
+    let thoughtsText = "";
+    let finalText = "";
+
+    await Promise.race([
+      (async () => {
+        for await (const chunk of stream) {
+          if (chunk.message.thinking) {
+            thoughtsText += chunk.message.thinking;
+            onDelta?.({ channel: "thoughts", text: chunk.message.thinking });
+          }
+          if (chunk.message.content) {
+            finalText += chunk.message.content;
+            onDelta?.({ channel: "final", text: chunk.message.content });
+          }
+        }
+      })(),
+      timeoutPromise,
+    ]);
+
+    return {
+      id: runId,
+      playgroundId: playground.id,
+      sessionId: undefined,
+      status: "completed",
+      thoughtsText,
+      finalText,
+      error: undefined,
+      partial: false,
+      startedAt,
+      completedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    capturedError = message;
+    onError?.(message);
     return {
       id: runId,
       playgroundId: playground.id,
