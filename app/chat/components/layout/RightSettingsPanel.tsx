@@ -1,4 +1,4 @@
-import { CalendarIcon } from ".pnpm/lucide-react@0.454.0_react@19.2.6/node_modules/lucide-react/dist/lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { SettingsDropdown } from "../ui/SettingsDropdown";
 import { Playground } from "../../lib/playground";
 import { Button } from "../ui/Button";

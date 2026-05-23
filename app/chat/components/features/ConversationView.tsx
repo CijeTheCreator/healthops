@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from ".pnpm/@types+react@19.2.15/node_modules/@types/react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ChevronDown,
   Copy,
@@ -6,8 +6,8 @@ import {
   MoreVertical,
   RotateCcw,
   Sparkles,
-} from ".pnpm/lucide-react@0.454.0_react@19.2.6/node_modules/lucide-react/dist/lucide-react";
-import Markdown from ".pnpm/react-markdown@10.1.0_@types+react@19.2.15_react@19.2.6/node_modules/react-markdown";
+} from "lucide-react";
+import Markdown from "react-markdown";
 import { Playground, RunResult, formatTime } from "../../lib/playground";
 import { useRunElapsedLabel } from "../../lib/runTiming";
 
