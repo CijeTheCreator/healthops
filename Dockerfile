@@ -7,7 +7,6 @@ WORKDIR /app/ui
 
 # Install deps
 COPY ui/package.json ui/pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
 RUN pnpm config set minimum-release-age 0 && \
     pnpm config set onlyBuiltDependencies sharp && \
     pnpm install
