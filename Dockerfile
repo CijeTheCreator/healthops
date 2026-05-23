@@ -7,13 +7,11 @@ WORKDIR /app/ui
 
 # Install deps
 COPY ui/package.json ui/pnpm-lock.yaml ./
-RUN pnpm config set minimum-release-age 0 && \
-    pnpm config set onlyBuiltDependencies sharp && \
-    pnpm install
+RUN npm install
 
 # Build Next.js
 COPY ui/ ./
-RUN pnpm build
+RUN npm build
 
 
 # ─── Stage 2: Build Backend ────────────────────────────────────────────────────
@@ -24,7 +22,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app/backend
 
 COPY backend/package.json backend/pnpm-lock.yaml ./
-RUN pnpm config set minimum-release-age 0 && pnpm install
+RUN npm install
 
 COPY backend/ ./
 
