@@ -1,0 +1,49 @@
+ # -------------------------------------------------------------------------
+# Flutter / Dart Defaults
+# -------------------------------------------------------------------------
+# Deprecated tools and build artifacts
+.blackbox
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# The core build output directory
+build/
+
+# Ephemeral Flutter files
+# (These are generated automatically when you run flutter commands)
+/android/local.properties
+/android/.gradle/
+/ios/.generated/
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/flutter_export_environment.sh
+/ios/Pods/
+/linux/flutter/
+/macos/flutter/
+/windows/flutter/
+
+# -------------------------------------------------------------------------
+# IDEs and Editors
+# -------------------------------------------------------------------------
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio Code
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# -------------------------------------------------------------------------
+# Environment Variables & Secrets (Crucial for security)
+# -------------------------------------------------------------------------
+.env
+.env.*
+*.secret

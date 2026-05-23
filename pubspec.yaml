@@ -1,0 +1,27 @@
+name: healthops
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  health: ^13.3.1
+  flutter_background_service: ^5.0.5
+  http: ^1.1.0 # Or the latest version
+  flutter_dotenv: ^5.1.0 # Or the latest version
+  network_info_plus: ^5.0.0 # lightweight, no extra permissions beyond location
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
