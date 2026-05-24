@@ -86,7 +86,7 @@ def main():
         Align.center(
             Text(
                 "Gemma-powered health insights for the whole family.",
-                style="dim italic cyan",
+                style="italic cyan",
             )
         )
     )
