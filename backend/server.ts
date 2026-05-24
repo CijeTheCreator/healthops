@@ -196,8 +196,8 @@ app.post("/api/run", async (req, res) => {
 app.get("/api/stats", async (req, res) => {
   try {
     const stats = await getFamilyStats();
-    const ipAddress = getLocalIPv4Address();
-    stats["ip"] = ipAddress;
+    const { ip } = getLocalIPv4Address();
+    stats["ip"] = ip;
     res.json(stats);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch family stats" });
@@ -217,12 +217,15 @@ async function start() {
     }
   });
   app.listen(PORT, () => {
-    const ip = getLocalIPv4Address();
+    const { ip, reachable } = getLocalIPv4Address();
 
     console.log(
       `\n🚀 HealthOps is live!\n\n` +
         `  Dashboard  →  http://${ip}:3000\n` +
-        `  Phone IP   →  ${ip}\n`,
+        `  Phone IP   →  ${ip}\n` +
+        (!reachable
+          ? `\n  ⚠️  Set HOST_IP env var to your machine's LAN IP for phone access.\n`
+          : ``),
     );
   });
 }

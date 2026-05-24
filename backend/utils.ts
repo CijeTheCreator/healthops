@@ -10,18 +10,22 @@ export function deduplicateHealthData(data: any) {
   });
 }
 
-export function getLocalIPv4Address() {
+export function getLocalIPv4Address(): { ip: string; reachable: boolean } {
+  if (process.env.HOST_IP) {
+    return { ip: process.env.HOST_IP, reachable: true };
+  }
+
   const interfaces = os.networkInterfaces();
 
   for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      // Skip over non-IPv4 and internal (loopback) addresses
+    for (const iface of interfaces[name]!) {
       if (iface.family === "IPv4" && !iface.internal) {
-        return iface.address;
+        return { ip: iface.address, reachable: false };
       }
     }
   }
-  return "127.0.0.1"; // Fallback
+
+  return { ip: "127.0.0.1", reachable: false };
 }
 
 export function isFullyPrivate() {
