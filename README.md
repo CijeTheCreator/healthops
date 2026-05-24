@@ -52,13 +52,13 @@ You choose at first startup.
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/youruser/healthops-mono/main/run.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.sh | bash
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/youruser/healthops-mono/main/run.ps1 | iex
+irm https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.ps1 | iex
 ```
 
 On first run, a setup wizard will ask whether you want fully private local mode or want to provide a Gemini API key. Once running, the server address will be printed in the terminal — you'll need this for the phone app.
@@ -67,7 +67,7 @@ The web dashboard is accessible from any device on your network at that address.
 
 ### Android app
 
-Download and install the [APK](https://github.com/your-repo/releases). Open it and enter three things:
+Download and install the [APK](https://github.com/CijeTheCreator/healthops/releases/tag/latest). Open it and enter three things:
 
 1. Your name
 2. Your WiFi network name
