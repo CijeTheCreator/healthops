@@ -31,7 +31,7 @@ export function scheduleWeeklyJob(
   const cronExpression = `${minute} ${hour} * * ${dayNumber}`;
 
   console.log(
-    `Scheduling job to run every ${day} at ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")} (Cron: ${cronExpression})`,
+    `Digests will be generated for the whole family every ${day} at ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}.`,
   );
 
   cron.schedule(cronExpression, () => {
