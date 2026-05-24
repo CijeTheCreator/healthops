@@ -1,7 +1,6 @@
 # HealthOps
 
 **Private health intelligence for your household.**
-
 Your family generates health data every day — steps, sleep stages, resting heart rate, blood oxygen — but the dots rarely get connected until something goes wrong. HealthOps fixes that. It pulls data from every family member's Android phone via HealthConnect, syncs it to a home server over local WiFi, and uses an on-device AI model to turn raw signals into structured observations and plain-language health narratives. Everything stays in the house.
 
 ---
@@ -52,13 +51,13 @@ You choose at first startup.
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.sh -o /tmp/run.sh && bash /tmp/run.sh
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.ps1 | iex
+irm https://raw.githubusercontent.com/CijeTheCreator/healthops/main/run.ps1 -OutFile "$env:TEMP\run.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\run.ps1"
 ```
 
 On first run, a setup wizard will ask whether you want fully private local mode or want to provide a Gemini API key. Once running, the server address will be printed in the terminal — you'll need this for the phone app.
