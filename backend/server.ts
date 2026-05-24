@@ -216,7 +216,15 @@ async function start() {
       genAI_WeeklyDigest({ rangeStart: formatted });
     }
   });
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    const ip = getLocalIPv4Address();
+
+    console.log(
+      `\n🚀 HealthOps is live!\n\n` +
+        `  Dashboard  →  http://${ip}:3000\n` +
+        `  Phone IP   →  ${ip}\n`,
+    );
+  });
 }
 
 start();
