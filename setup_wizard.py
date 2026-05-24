@@ -83,7 +83,12 @@ def main():
     console.print()
     console.print(Align.center(Text(ASCII_LOGO, style="bold green")))
     console.print(
-        Align.center(Text("intelligent health infrastructure", style="dim italic cyan"))
+        Align.center(
+            Text(
+                "Gemma-powered health insights for the whole family.",
+                style="dim italic cyan",
+            )
+        )
     )
     console.print()
     console.print(Rule(style="green dim"))
